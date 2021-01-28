@@ -1,5 +1,7 @@
 package TcpUtil;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -75,37 +77,35 @@ public class SysEventPacket implements Packet {
         os.write(bytes);
     }
 
-    public void setPacket(InputStream is) throws IOException{
+    public void setPacket(ByteBuf byteBufMsg) throws IOException{
 
-        byte[] totalLength = new byte[4];
-        while (is.read(totalLength) == -1) break;
-        this.totalLen = ByteBuffer.wrap(totalLength).getInt();
+        ByteBuffer buffer = ByteBuffer.allocate(totalLen);
+        buffer.put(packetType);
+        buffer.putInt(totalLen);
 
-        byte[] eventNum = new byte[4];
-        while (is.read(eventNum) == -1) break;
-        this.eventNum = ByteBuffer.wrap(eventNum).getInt();
+        buffer.putInt(eventNum);
+        buffer.putLong(total_timeouts);
+        buffer.putLong(total_waits);
+        buffer.putLong(time_waited);
+        buffer.putInt(strlen);
+        buffer.put(eventStr.getBytes());
 
-        byte[] total_timeouts = new byte[8];
-        while (is.read(total_timeouts) == -1) break;
-        this.total_timeouts = ByteBuffer.wrap(total_timeouts).getLong(0);
+        this.packetType = byteBufMsg.getByte(0);
+        this.totalLen = byteBufMsg.getInt(1);
+        this.eventNum = byteBufMsg.getInt(5);
 
-        byte[] total_waits = new byte[8];
-        while (is.read(total_waits) == -1) break;
-        this.total_waits = ByteBuffer.wrap(total_waits).getLong(0);
+        this.total_timeouts = byteBufMsg.getLong(9);
+        this.total_waits = byteBufMsg.getLong(17);
+        this.time_waited = byteBufMsg.getLong(25);
 
-        byte[] time_waited = new byte[8];
-        while (is.read(time_waited) == -1) break;
-        this.time_waited = ByteBuffer.wrap(time_waited).getLong(0);
+        this.strlen = byteBufMsg.getInt(33);
+        byte[] byteMsg = new byte[this.totalLen];
+        for (int i = 37; i < (this.totalLen); i++) {
+            byteMsg[i] = byteBufMsg.getByte(i);
+        }
+        this.eventStr = new String(byteMsg);
 
-        byte[] strLength = new byte[4];
-        while (is.read(strLength) == -1) break;
-        int length = ByteBuffer.wrap(strLength).getInt(0);
-
-        byte[] str = new byte[(int)length];
-        while (is.read(str) == -1) break;
-
-        this.eventStr = new String(str);
-        this.strlen = length;
+        System.out.println(this.toString());
     }
 
 }

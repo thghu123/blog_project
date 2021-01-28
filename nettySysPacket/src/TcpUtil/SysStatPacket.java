@@ -1,5 +1,7 @@
 package TcpUtil;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,14 +9,14 @@ import java.nio.ByteBuffer;
 
 public class SysStatPacket implements Packet {
 
-    private byte    packetType;
-    private int     totalLen,
-                    statistic,
-                    strlen;
-    private long    value;
-    private String    name;
+    private byte packetType;
+    private int totalLen,
+            statistic,
+            strlen;
+    private long value;
+    private String name;
 
-    public SysStatPacket(){
+    public SysStatPacket() {
         this.packetType = PacketType.SYSSTAT;
         this.totalLen = 45;
         this.statistic = 0;
@@ -23,9 +25,9 @@ public class SysStatPacket implements Packet {
         this.value = 0;
     }
 
-    public SysStatPacket(int statistic, String name, long value){
+    public SysStatPacket(int statistic, String name, long value) {
         this.packetType = PacketType.SYSSTAT;
-        this.totalLen = name.getBytes().length+1+4+4+4+8;
+        this.totalLen = name.getBytes().length + 1 + 4 + 4 + 4 + 8;
 
         this.statistic = statistic;
         this.name = name;
@@ -64,29 +66,20 @@ public class SysStatPacket implements Packet {
         os.write(bytes);
     }
 
-    public void setPacket(InputStream is) throws IOException{
+    public void setPacket(ByteBuf byteBufMsg) throws IOException {
 
-        byte[] totalLength = new byte[4];
-        while (is.read(totalLength) == -1) break;
-        this.totalLen = ByteBuffer.wrap(totalLength).getInt();
-
-        byte[] statistic = new byte[4];
-        while (is.read(statistic) == -1) break;
-        this.statistic = ByteBuffer.wrap(statistic).getInt();
-
-        byte[] value = new byte[8];
-        while (is.read(value) == -1) break;
-        this.value = ByteBuffer.wrap(value).getLong(0);
-
-        byte[] strLength = new byte[4];
-        while (is.read(strLength) == -1) break;
-        int length = ByteBuffer.wrap(strLength).getInt(0);
-
-        byte[] str = new byte[(int)length];
-        while (is.read(str) == -1) break;
-
-        this.name = new String(str);
-        this.strlen = length;
+        //한번에 받아온 ByteBuf 한줄 처리
+        this.packetType = byteBufMsg.getByte(0);
+        this.totalLen = byteBufMsg.getInt(1);
+        this.statistic = byteBufMsg.getInt(5);
+        this.value = byteBufMsg.getLong(9);
+        this.strlen = byteBufMsg.getInt(17);
+        byte[] byteMsg = new byte[this.totalLen];
+        for (int i = 21; i < (this.totalLen); i++) {
+            byteMsg[i] = byteBufMsg.getByte(i);
+        }
+        this.name = new String(byteMsg);
+        System.out.println(this.toString());
 
     }
 

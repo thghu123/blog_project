@@ -26,31 +26,30 @@ public class EchoClient {
 
         int eventNum = 2;
         long total_timeouts = 0,
-             time_waited = 3,
-             total_waits = 7;
+                time_waited = 3,
+                total_waits = 7;
         String eventStr = "EVENT : Process is Locked";
 
         //값이 많기 때문에 한번의 접속마다 하나씩 처리? 배열로 처리하면?
-        try{
+        try {
 
             //while
             //위 부분에서 protocol을 이용해 패킷을 생성하고 toByte 실행
             //이후 Echo Clienthander를 이용할 떄 toString으로 값을 넣어주자.
+            //리스트로 넘겨주는 가 byte로 넘겨주는 가?
 
-
-
-            while(true) {
+            while (true) {
                 Packet packet = null;
 
                 System.out.println("will you send? (sysstat:1, sysEvent:2 quit:3)");
                 int i = sc.nextInt();
 
                 //protocol에서 하는 작업 -> 클래스로 나눠서 테스트
-                if(i == 1) {//sysstatPacket
-                    packet = new SysStatPacket(statistic,name,value);
-                }else if(i == 2){//sysEventPacket Send
-                    packet = new SysEventPacket(eventNum,total_timeouts,time_waited,total_waits,eventStr);
-                }else{
+                if (i == 1) {//sysstatPacket
+                    packet = new SysStatPacket(statistic, name, value);
+                } else if (i == 2) {//sysEventPacket Send
+                    packet = new SysEventPacket(eventNum, total_timeouts, time_waited, total_waits, eventStr);
+                } else {
                     break;
                 }
 
@@ -71,10 +70,9 @@ public class EchoClient {
                 ChannelFuture cf = b.connect(HOST, PORT).sync();//IP와 PORT
                 cf.channel().closeFuture().sync();
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
 
             group.shutdownGracefully();
         }
