@@ -1,6 +1,9 @@
 package VO_util;
 
 import io.netty.buffer.ByteBuf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -8,6 +11,7 @@ import java.nio.ByteBuffer;
 
 
 public class SysEventPacket implements Packet {
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private byte packetType;
     private int totalLen;
@@ -18,11 +22,12 @@ public class SysEventPacket implements Packet {
             total_timeouts,
             time_waited;
     private String eventStr;
+    private int listSize;
 
     public SysEventPacket() {
         this.packetType = PacketType.SYSEVENT;
         this.totalLen = 45;
-
+        this.listSize = 0;
         this.eventNum = 0;
         this.total_timeouts = 0;
         this.total_waits = 0;
@@ -32,7 +37,7 @@ public class SysEventPacket implements Packet {
 
     public SysEventPacket(int eventNum, long total_timeouts, long time_waited, long total_waits, String eventStr) {
         this.packetType = PacketType.SYSEVENT;
-        this.totalLen = eventStr.getBytes().length + 1 + 4 + 4 + 4 + 8 + 8 + 8;
+        this.totalLen = eventStr.getBytes().length + 1 + 4 + 4+4 + 4 + 8 + 8 + 8;
 
         this.eventNum = eventNum;
         this.total_timeouts = total_timeouts;
@@ -47,6 +52,7 @@ public class SysEventPacket implements Packet {
     public byte[] toBytes() {
         ByteBuffer buffer = ByteBuffer.allocate(totalLen);
         buffer.put(packetType);
+        buffer.putInt(listSize);
         buffer.putInt(totalLen);
 
         buffer.putInt(eventNum);
@@ -58,6 +64,24 @@ public class SysEventPacket implements Packet {
 
         return buffer.array();
     }
+
+    @Override
+    public ByteBuffer toByteBuffer() {
+        ByteBuffer buffer = ByteBuffer.allocate(totalLen);
+        buffer.put(packetType);
+        buffer.putInt(listSize);
+        buffer.putInt(totalLen);
+
+        buffer.putInt(eventNum);
+        buffer.putLong(total_timeouts);
+        buffer.putLong(total_waits);
+        buffer.putLong(time_waited);
+        buffer.putInt(strlen);
+        buffer.put(eventStr.getBytes());
+
+        return buffer;
+    }
+
 
     @Override
     public String toString() {
@@ -82,6 +106,7 @@ public class SysEventPacket implements Packet {
 
         ByteBuffer buffer = ByteBuffer.allocate(totalLen);
         buffer.put(packetType);
+        buffer.putInt(listSize);
         buffer.putInt(totalLen);
 
         buffer.putInt(eventNum);
@@ -92,21 +117,27 @@ public class SysEventPacket implements Packet {
         buffer.put(eventStr.getBytes());
 
         this.packetType = byteBufMsg.getByte(0);
-        this.totalLen = byteBufMsg.getInt(1);
-        this.eventNum = byteBufMsg.getInt(5);
+        this.listSize = byteBufMsg.getInt(1);
+        this.totalLen = byteBufMsg.getInt(5);
+        this.eventNum = byteBufMsg.getInt(9);
 
-        this.total_timeouts = byteBufMsg.getLong(9);
-        this.total_waits = byteBufMsg.getLong(17);
-        this.time_waited = byteBufMsg.getLong(25);
+        this.total_timeouts = byteBufMsg.getLong(13);
+        this.total_waits = byteBufMsg.getLong(21);
+        this.time_waited = byteBufMsg.getLong(29);
 
-        this.strlen = byteBufMsg.getInt(33);
+        this.strlen = byteBufMsg.getInt(37);
         byte[] byteMsg = new byte[this.totalLen];
-        for (int i = 37; i < (this.totalLen); i++) {
+        for (int i = 41; i < (this.totalLen); i++) {
             byteMsg[i] = byteBufMsg.getByte(i);
         }
         this.eventStr = new String(byteMsg);
 
-        System.out.println(this.toString());
+        //System.out.println(this.toString());
+
+        MDC.put("userid","sysEvent");
+        logger.info("receive Data: "+this.toString());
+        MDC.clear();
+
     }
 
 

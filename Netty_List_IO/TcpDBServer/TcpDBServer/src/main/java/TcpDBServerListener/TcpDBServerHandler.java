@@ -19,6 +19,7 @@ public class TcpDBServerHandler extends ChannelInboundHandlerAdapter {
         ByteBuf inByteBufMsg = (ByteBuf) msg;
 
         ProtocolDAO protocol = new ProtocolDAO();
+
         protocol.receivePacket(inByteBufMsg);
 
         ctx.write(msg);

@@ -57,6 +57,7 @@ public class SysStatPacket implements Packet {
                         ", total Length: " + totalLen +
                         ", statistic :" + statistic +
                         ", value :" + value +
+                        ", strlen :" + strlen +
                         ", name:" + name +
                         "\n";
     }

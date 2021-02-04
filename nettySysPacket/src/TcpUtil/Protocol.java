@@ -33,8 +33,7 @@ public class Protocol {
             default:
                 break;
         }
-
-        packet.setPacket(inByteBufMsg);
+        if(inByteBufMsg != null) packet.setPacket(inByteBufMsg);
 
         return packet;
 

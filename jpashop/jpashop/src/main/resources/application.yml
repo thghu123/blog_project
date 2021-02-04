@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/test
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+#
+#spring:
+#  datasource:
+#    platform: oracle
+#    url: jdbc:oracle:thin:@localhost:1521:oracle19
+#    username: c##repo
+#    password: repo
+#    driver-class-name: oracle.jdbc.driver.OracleDriver
+
+#spring:
+#  datasource:
+#    platform: oracle
+#    url: jdbc:log4jdbc:oracle:thin:@localhost:1521:oracle19
+#    username: c##maxgauge
+#    password: maxgauge
+#    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+#
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true #sysout으로 출력한다.
+        format_sql: true #로거로 출력
+
+logging.level:
+  org.hibernate.SQL: debug
+      #하이버네이트가 생성하는 SQL이 출력이된다. logger를 통해 출력한다.

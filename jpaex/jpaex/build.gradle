@@ -1,0 +1,41 @@
+plugins {
+	id 'org.springframework.boot' version '2.3.8.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+}
+
+group = 'com.jpaex'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+	//ojdbc
+	//maven { url "https://code.lds.org/nexus/content/groups/main-repo"}
+	// lombok
+	//maven { url "https://plugins.gradle.org/m2/" }
+
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter'
+
+	implementation 'com.oracle.ojdbc:ojdbc8'
+	implementation 'com.oracle.ojdbc:orai18n'
+
+	implementation 'io.netty:netty-all'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+
+	implementation 'org.springframework.boot:spring-boot-starter'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+}
+
+test {
+	useJUnitPlatform()
+}

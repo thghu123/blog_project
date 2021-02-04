@@ -20,6 +20,8 @@ dependencies {
 	}
 	runtimeOnly 'com.oracle.database.jdbc:ojdbc10'
 
+
+
 }
 
 test {
